@@ -6,14 +6,17 @@
 bool errorconexion=false;
 WiFiClient client;
 MySQL_Connection conn((Client *)&client);
-IPAddress server_addr(192, 168 , 100, 162);          // IP del servidor MySQL
+IPAddress server_addr(192, 168 , 128, 37);          // IP del servidor MySQL
 char user[] = "super";           
 char passwd[] = "12345";      
-char BASE_SQL[] = "INSERT INTO datos.datosplanta (Temperatura, Humedad, Distancia, Bomba) VALUES (%f, %d, %d, %d)";
+char BASE_SQL[] = "INSERT INTO datos.temp_agua (content) VALUES (%f)";
+char BASE_SQL2[] = "INSERT INTO datos.humedad_suel (content) VALUES (%d)";
+char BASE_SQL3[] = "INSERT INTO datos.nivel_agua (content) VALUES (%d)";
+char BASE_SQL4[] = "INSERT INTO datos.estado_bomba (content) VALUES (%d)";
 char consulta[128];
 //const char* ssid  = "CGA2121_yFeVW46";
-const char* ssid = "Totalplay-379F";
-const char* password = "Totalplay3786425";
+const char* ssid = "Leyva";
+const char* password = "leyva123";
 //const char* password  = "3ZtzQcxMDMmNCs4WDQ";
 uint8_t newMACAddress[] = {0xa8, 0xdb, 0x03, 0x8e, 0x86, 0x74};
 #define trigPin 13
@@ -89,12 +92,21 @@ void loop() {
    Serial.println(numero);
    Serial.println("Guardando datos");
     MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);  // Inicializa el cursor para la consulta SQL
-    sprintf(consulta,BASE_SQL,dt,hm,ds,numero); // Completa la trama de la consulta SQL
+    sprintf(consulta,BASE_SQL,dt); // Completa la trama de la consulta SQL
     Serial.println(consulta);
     cur_mem->execute(consulta);  // Ejecuta la consulta SQL y escribe el valor de los milisegundos
-    delete cur_mem;  // Al no haber resultados, elimina el cursor y libera memoria 
+    sprintf(consulta,BASE_SQL2,hm); // Completa la trama de la consulta SQL
+    Serial.println(consulta);
+    cur_mem->execute(consulta);  // Ejecuta la consulta SQL y escribe el valor de los milisegundos
+    sprintf(consulta,BASE_SQL3,ds); // Completa la trama de la consulta SQL
+    Serial.println(consulta);
+    cur_mem->execute(consulta);  // Ejecuta la consulta SQL y escribe el valor de los milisegundos
+    sprintf(consulta,BASE_SQL4,numero); // Completa la trama de la consulta SQL
+    Serial.println(consulta);
+    cur_mem->execute(consulta);  // Ejecuta la consulta SQL y escribe el valor de los milisegundos
+    delete cur_mem;// Al no haber resultados, elimina el cursor y libera memoria 
    lcd.clear();
-   delay(60000);
+   delay(15000);
   }
 }
 int dista(){
@@ -204,7 +216,7 @@ int Humedad(){
     int Bom = 0;
         if(dt > 25){
           if(hm >= 600 && hm <= 1024){
-            if(ds <=17 && ds > 0){
+            if(ds <=13 && ds > 0){
                  Bom = Bom+1;
                 //Activo
                 Serial.print(Bom);
